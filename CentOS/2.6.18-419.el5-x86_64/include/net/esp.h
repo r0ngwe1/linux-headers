@@ -1,0 +1,27 @@
+#ifndef _NET_ESP_H
+#define _NET_ESP_H
+
+#include <linux/skbuff.h>
+
+struct crypto_aead;
+
+struct esp_data {
+	/* 0..255 */
+	int padlen;
+
+	/* Confidentiality & Integrity */
+	struct crypto_aead *aead;
+};
+
+extern int skb_to_sgvec(struct sk_buff *skb, struct scatterlist *sg, int offset, int len);
+extern int skb_cow_data(struct sk_buff *skb, int tailbits, struct sk_buff **trailer);
+extern void *pskb_put(struct sk_buff *skb, struct sk_buff *tail, int len);
+
+struct ip_esp_hdr;
+
+static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
+{
+	return (struct ip_esp_hdr *)skb->h.raw;
+}
+
+#endif

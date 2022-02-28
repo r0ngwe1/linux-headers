@@ -1,0 +1,104 @@
+menu "Cell Broadband Engine options"
+	depends on PPC_CELL
+
+config SPU_FS
+	tristate "SPU file system"
+	default m
+	depends on PPC_CELL
+	select SPU_BASE
+	select MEMORY_HOTPLUG
+	help
+	  The SPU file system is used to access Synergistic Processing
+	  Units on machines implementing the Broadband Processor
+	  Architecture.
+
+config SPU_FS_64K_LS
+	bool "Use 64K pages to map SPE local  store"
+	# we depend on PPC_MM_SLICES for now rather than selecting
+	# it because we depend on hugetlbfs hooks being present. We
+	# will fix that when the generic code has been improved to
+	# not require hijacking hugetlbfs hooks.
+	# This is marked as broken as PPC_MM_SLICES is not available
+	depends on SPU_FS && PPC_MM_SLICES && !PPC_64K_PAGES && BROKEN
+	default y
+	# the select clause is disabled until PPC_HAS_HASH_64K gets available
+	# select PPC_HAS_HASH_64K
+	help
+	  This option causes SPE local stores to be mapped in process
+	  address spaces using 64K pages while the rest of the kernel
+	  uses 4K pages. This can improve performances of applications
+	  using multiple SPEs by lowering the TLB pressure on them.
+
+config SPU_BASE
+	bool
+	default n
+
+config SPUFS_MMAP
+	bool
+	depends on SPU_FS && SPARSEMEM
+	default y
+
+config CBE_RAS
+	bool "RAS features for bare metal Cell BE"
+	default y
+
+config PPC_IBM_CELL_POWERBUTTON
+	tristate "IBM Cell Blade power button"
+	depends on PPC_IBM_CELL_BLADE && PPC_PMI && INPUT_EVDEV
+	default y
+	help
+	  Support Powerbutton on IBM Cell blades.
+	  This will enable the powerbutton as an input device.
+
+config CBE_THERM
+	tristate "CBE thermal support"
+	default m
+	depends on CBE_RAS
+
+config CBE_CPUFREQ
+        tristate "CBE frequency scaling"
+        depends on CBE_RAS && CPU_FREQ
+        default m
+        help
+          This adds the cpufreq driver for Cell BE processors.
+          For details, take a look at <file:Documentation/cpu-freq/>.
+          If you don't have such processor, say N
+
+config CBE_CPUFREQ_PMI
+        tristate "CBE frequency scaling using PMI interface"
+        depends on CBE_CPUFREQ && PPC_PMI && EXPERIMENTAL
+        default n
+        help
+          Select this, if you want to use the PMI interface
+          to switch frequencies. Using PMI, the
+          processor will not only be able to run at lower speed,
+          but also at lower core voltage.
+
+config CBE_AXON_UTL
+	bool "CBE/Axon PCIe Upper Transaction layer error handling"
+	default n
+	help
+	  The Axon chip delivers error conditions detected in the
+	  PCIe root complex as interrupts.
+
+config CBE_AXON_PCI
+	bool "CBE/Axon PCI error handling"
+	default n
+	help
+	  The Axon chip delivers error conditions detected in the
+	  PCI bridge as error interrupts.
+
+config CBE_CPUFREQ_SPU_GOVERNOR
+    tristate "CBE frequency scaling based on SPU usage"
+    depends on SPU_FS && CPU_FREQ
+    default m
+    help
+      This governor checks for spu usage to adjust the cpu frequency.
+      If no spu is running on a given cpu, that cpu will be throttled to
+      the minimal possible frequency.
+
+config HAVE_DMA_ATTRS
+	def_bool y
+	depends on PPC_CELL
+
+endmenu

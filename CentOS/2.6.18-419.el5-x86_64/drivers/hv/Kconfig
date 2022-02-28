@@ -1,0 +1,28 @@
+menu "Microsoft Hyper-V guest support"
+
+config HYPERV
+	tristate "Microsoft Hyper-V client drivers"
+	depends on X86 && ACPI && PCI
+	help
+	  Select this option to run Linux as a Hyper-V client operating
+	  system.
+
+config HYPERV_UTILS
+	tristate "Microsoft Hyper-V Utilities driver"
+	depends on HYPERV && CONNECTOR && NLS
+	help
+	  Select this option to enable the Hyper-V Utilities.
+
+config HID_BASE_HV
+       tristate "HID support for Hyper-V"
+       depends on HYPERV
+       help
+          Select this option to enable the HID support for Hyper-V.
+
+config HID_HYPERV_MOUSE
+	tristate "Microsoft Hyper-V mouse driver"
+	depends on HYPERV && HID_BASE_HV
+	---help---
+	Select this option to enable the Hyper-V mouse driver.
+
+endmenu
